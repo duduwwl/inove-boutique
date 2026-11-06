@@ -59,7 +59,7 @@ test("bloqueia entrega e cartão incompletos", async ({ page }) => {
   await page.getByRole("button", { name: "Continuar para entrega" }).click();
   await page.getByText("Motoboy Varginha").click();
   await page.getByRole("button", { name: "Continuar para pagamento" }).click();
-  await expect(page.getByText("Preencha um endereço válido para entrega.")).toBeVisible();
+  await expect(page.getByText("Preencha e valide o CEP para entrega.")).toBeVisible();
   await page.getByText("Retirar na loja").click();
   await page.getByRole("button", { name: "Continuar para pagamento" }).click();
   await page.getByRole("tab", { name: "Crédito" }).click();

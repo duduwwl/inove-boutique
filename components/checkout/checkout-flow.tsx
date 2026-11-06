@@ -10,27 +10,540 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { products } from "@/data/products";
-import { cardBrand, isCompleteAddress, isValidCardDetails, isValidCpf, pixPayload } from "@/lib/checkout";
+import {
+  cardBrand,
+  isCompleteAddress,
+  isValidCardDetails,
+  isValidCpf,
+  pixPayload,
+} from "@/lib/checkout";
 import { applyCoupon, cartTotals, formatPrice } from "@/lib/shop";
 import { useShopStore } from "@/store/shop-store";
 
-const identitySchema=z.object({name:z.string().min(3,"Informe seu nome completo."),email:z.email("Informe um e-mail válido."),phone:z.string().min(14,"Informe celular com DDD."),cpf:z.string().refine(isValidCpf,"CPF inválido.")});
-type Identity=z.infer<typeof identitySchema>;
-type Address={cep:string;street:string;district:string;city:string;uf:string;number:string};
+const identitySchema = z.object({
+  name: z.string().min(3, "Informe seu nome completo."),
+  email: z.email("Informe um e-mail válido."),
+  phone: z.string().min(14, "Informe celular com DDD."),
+  cpf: z.string().refine(isValidCpf, "CPF inválido."),
+});
+type Identity = z.infer<typeof identitySchema>;
+type Address = {
+  cep: string;
+  street: string;
+  district: string;
+  city: string;
+  uf: string;
+  number: string;
+};
 
-export function CheckoutFlow(){const router=useRouter();const {cart,coupon,clearCart}=useShopStore();const [step,setStep]=useState(0);const [identity,setIdentity]=useState<Identity|null>(null);const [address,setAddress]=useState<Address>({cep:"",street:"",district:"",city:"Varginha",uf:"MG",number:""});const [shipping,setShipping]=useState("pickup");const [payment,setPayment]=useState<"pix"|"credit"|"debit">("pix");const [card,setCard]=useState({number:"",name:"",expiry:"",cvv:"",installments:"1"});const [processing,setProcessing]=useState(false);const [seconds,setSeconds]=useState(900);const form=useForm<Identity>({resolver:zodResolver(identitySchema),defaultValues:{name:"",email:"",phone:"",cpf:""}});
-  const lines=cart.flatMap((item)=>{const product=products.find((entry)=>entry.id===item.productId);return product?[{...item,product}]:[]});const subtotal=lines.reduce((sum,item)=>sum+item.product.price*item.quantity,0);const couponDiscount=applyCoupon(subtotal,coupon).discount;const shippingCost=shipping==="pickup"?0:shipping==="motoboy"?12:shipping==="pac"?24.9:39.9;const totals=cartTotals(subtotal,couponDiscount,shippingCost,payment);
-  useEffect(()=>{if(payment!=="pix")return;const timer=window.setInterval(()=>setSeconds((value)=>Math.max(0,value-1)),1000);return()=>window.clearInterval(timer)},[payment]);
-  const time=`${String(Math.floor(seconds/60)).padStart(2,"0")}:${String(seconds%60).padStart(2,"0")}`;
-  const fetchCep=async()=>{const cep=address.cep.replace(/\D/g,"");if(cep.length!==8){toast.error("CEP precisa ter 8 números.");return;}try{const response=await fetch(`https://viacep.com.br/ws/${cep}/json/`);const data=await response.json();if(data.erro)throw new Error();setAddress((current)=>({...current,street:data.logradouro,district:data.bairro,city:data.localidade,uf:data.uf}));toast.success("Endereço preenchido.");}catch{toast.error("Não encontramos esse CEP.");}};
-  const submitIdentity=form.handleSubmit((value)=>{setIdentity(value);setStep(1)});
-  const continueDelivery=()=>{if(shipping!=="pickup"&&!isCompleteAddress(address)){toast.error("Preencha um endereço válido para entrega.");return;}setStep(2);};
-  const continuePayment=()=>{if(payment!=="pix"&&!isValidCardDetails(card)){toast.error("Confira número, nome, validade e CVV do cartão.");return;}setStep(3);};
-  const finish=async()=>{if(payment!=="pix"&&!isValidCardDetails(card)){toast.error("Confira os dados do cartão.");setStep(2);return;}setProcessing(true);await new Promise((resolve)=>setTimeout(resolve,1700));const id=`IB47-${Date.now().toString(36).toUpperCase()}`;clearCart();router.push(`/pedido/${id}`);};
-  if(!lines.length)return <div className="standalone-empty"><h1 className="display">A sacola está vazia.</h1><button className="button-primary" onClick={()=>router.push("/loja")}>Voltar à loja</button></div>;
-  return <div className="checkout-page container"><header><p>Ambiente de demonstração · nenhum pagamento é processado</p><h1 className="display">Finalizar pedido</h1><ol>{["Identificação","Entrega","Pagamento","Revisão"].map((label,index)=><li key={label} className={index===step?"active":index<step?"done":""}><span>{index<step?<Check/>:index+1}</span>{label}</li>)}</ol></header><div className="checkout-layout"><section>
-    {step===0?<form onSubmit={submitIdentity} className="checkout-form"><h2>Quem vai receber?</h2><label>Nome completo<input autoComplete="name" {...form.register("name")}/><em>{form.formState.errors.name?.message}</em></label><label>E-mail<input type="email" autoComplete="email" {...form.register("email")}/><em>{form.formState.errors.email?.message}</em></label><label>Celular<input autoComplete="tel" placeholder="(35) 99999-9999" {...form.register("phone")}/><em>{form.formState.errors.phone?.message}</em></label><label>CPF<input inputMode="numeric" placeholder="000.000.000-00" {...form.register("cpf")}/><em>{form.formState.errors.cpf?.message}</em></label><button className="button-primary" type="submit">Continuar para entrega</button></form>:null}
-    {step===1?<div className="checkout-form"><h2>Como quer receber?</h2><div className="address-fields"><label>CEP<input value={address.cep} onChange={(event)=>setAddress({...address,cep:event.target.value})} onBlur={fetchCep} inputMode="numeric"/></label><button className="button-secondary" onClick={fetchCep}>Buscar CEP</button><label>Rua<input value={address.street} onChange={(event)=>setAddress({...address,street:event.target.value})}/></label><label>Número<input value={address.number} onChange={(event)=>setAddress({...address,number:event.target.value})}/></label><label>Bairro<input value={address.district} onChange={(event)=>setAddress({...address,district:event.target.value})}/></label><label>Cidade<input value={`${address.city} - ${address.uf}`} readOnly/></label></div><div className="shipping-options">{[["pickup","Retirar na loja","Centro de Varginha · grátis",<Store key="s"/>],["motoboy","Motoboy Varginha","R$ 12,00 · hoje",<MapPin key="m"/>],["pac","PAC","R$ 24,90 · 6 a 9 dias",<MapPin key="p"/>],["sedex","SEDEX","R$ 39,90 · 2 a 4 dias",<MapPin key="x"/>]].map(([value,title,note,icon])=><label key={String(value)} className={shipping===value?"active":""}>{icon}<input type="radio" name="shipping" checked={shipping===value} onChange={()=>setShipping(String(value))}/><span><strong>{title}</strong><small>{note}</small></span></label>)}</div><div className="step-buttons"><button className="button-secondary" onClick={()=>setStep(0)}>Voltar</button><button className="button-primary" onClick={continueDelivery}>Continuar para pagamento</button></div></div>:null}
-    {step===2?<div className="checkout-form"><h2>Pagamento demonstrativo</h2><Tabs.Root value={payment} onValueChange={(value)=>setPayment(value as typeof payment)}><Tabs.List className="payment-tabs"><Tabs.Trigger value="pix"><QrCode/>Pix</Tabs.Trigger><Tabs.Trigger value="credit"><CreditCard/>Crédito</Tabs.Trigger><Tabs.Trigger value="debit"><CreditCard/>Débito</Tabs.Trigger></Tabs.List><Tabs.Content value="pix" className="pix-panel"><QRCodeSVG value={pixPayload} size={190}/><div><h3>5% de desconto no Pix</h3><p>O código expira em <strong>{time}</strong>.</p><button className="button-secondary" onClick={()=>{void navigator.clipboard?.writeText(pixPayload);toast.success("Código Pix copiado.")}}><Copy/>Copiar código Pix</button><button className="text-link" onClick={()=>toast.success("Pagamento aprovado na simulação.")}>Simular pagamento aprovado</button></div></Tabs.Content>{["credit","debit"].map((type)=><Tabs.Content key={type} value={type}><div className={`credit-preview ${card.cvv?"show-back":""}`}><div className="card-front"><span>{cardBrand(card.number)}</span><strong>{card.number||"0000 0000 0000 0000"}</strong><small>{card.name||"NOME NO CARTÃO"} · {card.expiry||"MM/AA"}</small></div><div className="card-back"><span>CVV</span><strong>{card.cvv||"000"}</strong></div></div><div className="card-fields"><label>Número<input inputMode="numeric" value={card.number} onChange={(event)=>setCard({...card,number:event.target.value})}/></label><label>Nome no cartão<input value={card.name} onChange={(event)=>setCard({...card,name:event.target.value})}/></label><label>Validade<input placeholder="MM/AA" value={card.expiry} onChange={(event)=>setCard({...card,expiry:event.target.value})}/></label><label>CVV<input inputMode="numeric" value={card.cvv} onChange={(event)=>setCard({...card,cvv:event.target.value})}/></label>{type==="credit"?<label>Parcelas<select value={card.installments} onChange={(event)=>setCard({...card,installments:event.target.value})}>{[1,2,3,4,5,6].map((value)=><option key={value} value={value}>{value}x {value<=3?"sem juros":"com juros demonstrativos"}</option>)}</select></label>:null}</div></Tabs.Content>)}</Tabs.Root><div className="step-buttons"><button className="button-secondary" onClick={()=>setStep(1)}>Voltar</button><button className="button-primary" onClick={continuePayment}>Revisar pedido</button></div></div>:null}
-    {step===3?<div className="checkout-form review-panel"><h2>Confere tudo</h2><dl><div><dt>Cliente</dt><dd>{identity?.name}<br/>{identity?.email}</dd></div><div><dt>Entrega</dt><dd>{shipping==="pickup"?"Retirada na loja":`${address.street}, ${address.number} · ${address.city}-${address.uf}`}</dd></div><div><dt>Pagamento</dt><dd>{payment==="pix"?"Pix com 5% de desconto":payment==="credit"?`Crédito em ${card.installments}x`:"Débito à vista"}</dd></div></dl><div className="step-buttons"><button className="button-secondary" onClick={()=>setStep(2)}>Voltar</button><button className="button-primary" onClick={finish} disabled={processing}>{processing?"Confirmando demonstração…":"Finalizar pedido demonstrativo"}</button></div></div>:null}
-  </section><aside><h2>Resumo da arara</h2>{lines.map((item)=><p key={`${item.productId}-${item.size}`}><span>{item.quantity}× {item.product.name}</span><strong>{formatPrice(item.product.price*item.quantity)}</strong></p>)}<hr/><p><span>Subtotal</span><strong>{formatPrice(totals.subtotal)}</strong></p><p><span>Descontos</span><strong>- {formatPrice(totals.couponDiscount+totals.paymentDiscount)}</strong></p><p><span>Entrega</span><strong>{totals.shipping?formatPrice(totals.shipping):"Grátis"}</strong></p><p className="checkout-total"><span>Total</span><strong>{formatPrice(totals.total)}</strong></p><small>Nenhum dado de cartão é enviado ou armazenado.</small></aside></div></div>}
+export function CheckoutFlow() {
+  const router = useRouter();
+  const { cart, coupon, clearCart } = useShopStore();
+  const [step, setStep] = useState(0);
+  const [identity, setIdentity] = useState<Identity | null>(null);
+  const [address, setAddress] = useState<Address>({
+    cep: "",
+    street: "",
+    district: "",
+    city: "Varginha",
+    uf: "MG",
+    number: "",
+  });
+  const [cepValidated, setCepValidated] = useState(false);
+  const [shipping, setShipping] = useState("pickup");
+  const [payment, setPayment] = useState<"pix" | "credit" | "debit">("pix");
+  const [card, setCard] = useState({
+    number: "",
+    name: "",
+    expiry: "",
+    cvv: "",
+    installments: "1",
+  });
+  const [processing, setProcessing] = useState(false);
+  const [seconds, setSeconds] = useState(900);
+  const form = useForm<Identity>({
+    resolver: zodResolver(identitySchema),
+    defaultValues: { name: "", email: "", phone: "", cpf: "" },
+  });
+  const lines = cart.flatMap((item) => {
+    const product = products.find((entry) => entry.id === item.productId);
+    return product ? [{ ...item, product }] : [];
+  });
+  const subtotal = lines.reduce(
+    (sum, item) => sum + item.product.price * item.quantity,
+    0,
+  );
+  const couponDiscount = applyCoupon(subtotal, coupon).discount;
+  const shippingCost =
+    shipping === "pickup"
+      ? 0
+      : shipping === "motoboy"
+        ? 12
+        : shipping === "pac"
+          ? 24.9
+          : 39.9;
+  const totals = cartTotals(subtotal, couponDiscount, shippingCost, payment);
+  useEffect(() => {
+    if (payment !== "pix") return;
+    const timer = window.setInterval(
+      () => setSeconds((value) => Math.max(0, value - 1)),
+      1000,
+    );
+    return () => window.clearInterval(timer);
+  }, [payment]);
+  const time = `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
+  const fetchCep = async () => {
+    const cep = address.cep.replace(/\D/g, "");
+    setCepValidated(false);
+    if (cep.length !== 8) {
+      toast.error("CEP precisa ter 8 números.");
+      return;
+    }
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const data = await response.json();
+      if (data.erro) throw new Error();
+      setAddress((current) => ({
+        ...current,
+        street: data.logradouro,
+        district: data.bairro,
+        city: data.localidade,
+        uf: data.uf,
+      }));
+      setCepValidated(true);
+      toast.success("Endereço preenchido.");
+    } catch {
+      toast.error("Não encontramos esse CEP.");
+    }
+  };
+  const submitIdentity = form.handleSubmit((value) => {
+    setIdentity(value);
+    setStep(1);
+  });
+  const continueDelivery = () => {
+    if (shipping !== "pickup" && (!cepValidated || !isCompleteAddress(address))) {
+      toast.error("Preencha e valide o CEP para entrega.");
+      return;
+    }
+    setStep(2);
+  };
+  const continuePayment = () => {
+    if (payment !== "pix" && !isValidCardDetails(card)) {
+      toast.error("Confira número, nome, validade e CVV do cartão.");
+      return;
+    }
+    setStep(3);
+  };
+  const finish = async () => {
+    if (payment !== "pix" && !isValidCardDetails(card)) {
+      toast.error("Confira os dados do cartão.");
+      setStep(2);
+      return;
+    }
+    setProcessing(true);
+    await new Promise((resolve) => setTimeout(resolve, 1700));
+    const id = `IB47-${Date.now().toString(36).toUpperCase()}`;
+    clearCart();
+    router.push(`/pedido/${id}`);
+  };
+  if (!lines.length)
+    return (
+      <div className="standalone-empty">
+        <h1 className="display">A sacola está vazia.</h1>
+        <button className="button-primary" onClick={() => router.push("/loja")}>
+          Voltar à loja
+        </button>
+      </div>
+    );
+  return (
+    <div className="checkout-page container">
+      <header>
+        <p>Ambiente de demonstração · nenhum pagamento é processado</p>
+        <h1 className="display">Finalizar pedido</h1>
+        <ol>
+          {["Identificação", "Entrega", "Pagamento", "Revisão"].map(
+            (label, index) => (
+              <li
+                key={label}
+                className={
+                  index === step ? "active" : index < step ? "done" : ""
+                }
+              >
+                <span>{index < step ? <Check /> : index + 1}</span>
+                {label}
+              </li>
+            ),
+          )}
+        </ol>
+      </header>
+      <div className="checkout-layout">
+        <section>
+          {step === 0 ? (
+            <form onSubmit={submitIdentity} className="checkout-form">
+              <h2>Quem vai receber?</h2>
+              <label>
+                Nome completo
+                <input autoComplete="name" {...form.register("name")} />
+                <em>{form.formState.errors.name?.message}</em>
+              </label>
+              <label>
+                E-mail
+                <input
+                  type="email"
+                  autoComplete="email"
+                  {...form.register("email")}
+                />
+                <em>{form.formState.errors.email?.message}</em>
+              </label>
+              <label>
+                Celular
+                <input
+                  autoComplete="tel"
+                  placeholder="(35) 99999-9999"
+                  {...form.register("phone")}
+                />
+                <em>{form.formState.errors.phone?.message}</em>
+              </label>
+              <label>
+                CPF
+                <input
+                  inputMode="numeric"
+                  placeholder="000.000.000-00"
+                  {...form.register("cpf")}
+                />
+                <em>{form.formState.errors.cpf?.message}</em>
+              </label>
+              <button className="button-primary" type="submit">
+                Continuar para entrega
+              </button>
+            </form>
+          ) : null}
+          {step === 1 ? (
+            <div className="checkout-form">
+              <h2>Como quer receber?</h2>
+              <div className="address-fields">
+                <label>
+                  CEP
+                  <input
+                    value={address.cep}
+                    onChange={(event) => {
+                      setCepValidated(false);
+                      setAddress({ ...address, cep: event.target.value });
+                    }}
+                    onBlur={fetchCep}
+                    inputMode="numeric"
+                  />
+                </label>
+                <button className="button-secondary" onClick={fetchCep}>
+                  Buscar CEP
+                </button>
+                <label>
+                  Rua
+                  <input
+                    value={address.street}
+                    onChange={(event) =>
+                      setAddress({ ...address, street: event.target.value })
+                    }
+                  />
+                </label>
+                <label>
+                  Número
+                  <input
+                    value={address.number}
+                    onChange={(event) =>
+                      setAddress({ ...address, number: event.target.value })
+                    }
+                  />
+                </label>
+                <label>
+                  Bairro
+                  <input
+                    value={address.district}
+                    onChange={(event) =>
+                      setAddress({ ...address, district: event.target.value })
+                    }
+                  />
+                </label>
+                <label>
+                  Cidade
+                  <input value={`${address.city} - ${address.uf}`} readOnly />
+                </label>
+              </div>
+              <div className="shipping-options">
+                {[
+                  [
+                    "pickup",
+                    "Retirar na loja",
+                    "Centro de Varginha · grátis",
+                    <Store key="s" />,
+                  ],
+                  [
+                    "motoboy",
+                    "Motoboy Varginha",
+                    "R$ 12,00 · hoje",
+                    <MapPin key="m" />,
+                  ],
+                  ["pac", "PAC", "R$ 24,90 · 6 a 9 dias", <MapPin key="p" />],
+                  [
+                    "sedex",
+                    "SEDEX",
+                    "R$ 39,90 · 2 a 4 dias",
+                    <MapPin key="x" />,
+                  ],
+                ].map(([value, title, note, icon]) => (
+                  <label
+                    key={String(value)}
+                    className={shipping === value ? "active" : ""}
+                  >
+                    {icon}
+                    <input
+                      type="radio"
+                      name="shipping"
+                      checked={shipping === value}
+                      onChange={() => setShipping(String(value))}
+                    />
+                    <span>
+                      <strong>{title}</strong>
+                      <small>{note}</small>
+                    </span>
+                  </label>
+                ))}
+              </div>
+              <div className="step-buttons">
+                <button className="button-secondary" onClick={() => setStep(0)}>
+                  Voltar
+                </button>
+                <button className="button-primary" onClick={continueDelivery}>
+                  Continuar para pagamento
+                </button>
+              </div>
+            </div>
+          ) : null}
+          {step === 2 ? (
+            <div className="checkout-form">
+              <h2>Pagamento demonstrativo</h2>
+              <Tabs.Root
+                value={payment}
+                onValueChange={(value) => setPayment(value as typeof payment)}
+              >
+                <Tabs.List className="payment-tabs">
+                  <Tabs.Trigger value="pix">
+                    <QrCode />
+                    Pix
+                  </Tabs.Trigger>
+                  <Tabs.Trigger value="credit">
+                    <CreditCard />
+                    Crédito
+                  </Tabs.Trigger>
+                  <Tabs.Trigger value="debit">
+                    <CreditCard />
+                    Débito
+                  </Tabs.Trigger>
+                </Tabs.List>
+                <Tabs.Content value="pix" className="pix-panel">
+                  <QRCodeSVG value={pixPayload} size={190} />
+                  <div>
+                    <h3>5% de desconto no Pix</h3>
+                    <p>
+                      O código expira em <strong>{time}</strong>.
+                    </p>
+                    <button
+                      className="button-secondary"
+                      onClick={() => {
+                        void navigator.clipboard?.writeText(pixPayload);
+                        toast.success("Código Pix copiado.");
+                      }}
+                    >
+                      <Copy />
+                      Copiar código Pix
+                    </button>
+                    <button
+                      className="text-link"
+                      onClick={() =>
+                        toast.success("Pagamento aprovado na simulação.")
+                      }
+                    >
+                      Simular pagamento aprovado
+                    </button>
+                  </div>
+                </Tabs.Content>
+                {["credit", "debit"].map((type) => (
+                  <Tabs.Content key={type} value={type}>
+                    <div
+                      className={`credit-preview ${card.cvv ? "show-back" : ""}`}
+                    >
+                      <div className="card-front">
+                        <span>{cardBrand(card.number)}</span>
+                        <strong>{card.number || "0000 0000 0000 0000"}</strong>
+                        <small>
+                          {card.name || "NOME NO CARTÃO"} ·{" "}
+                          {card.expiry || "MM/AA"}
+                        </small>
+                      </div>
+                      <div className="card-back">
+                        <span>CVV</span>
+                        <strong>{card.cvv || "000"}</strong>
+                      </div>
+                    </div>
+                    <div className="card-fields">
+                      <label>
+                        Número
+                        <input
+                          inputMode="numeric"
+                          value={card.number}
+                          onChange={(event) =>
+                            setCard({ ...card, number: event.target.value })
+                          }
+                        />
+                      </label>
+                      <label>
+                        Nome no cartão
+                        <input
+                          value={card.name}
+                          onChange={(event) =>
+                            setCard({ ...card, name: event.target.value })
+                          }
+                        />
+                      </label>
+                      <label>
+                        Validade
+                        <input
+                          placeholder="MM/AA"
+                          value={card.expiry}
+                          onChange={(event) =>
+                            setCard({ ...card, expiry: event.target.value })
+                          }
+                        />
+                      </label>
+                      <label>
+                        CVV
+                        <input
+                          inputMode="numeric"
+                          value={card.cvv}
+                          onChange={(event) =>
+                            setCard({ ...card, cvv: event.target.value })
+                          }
+                        />
+                      </label>
+                      {type === "credit" ? (
+                        <label>
+                          Parcelas
+                          <select
+                            value={card.installments}
+                            onChange={(event) =>
+                              setCard({
+                                ...card,
+                                installments: event.target.value,
+                              })
+                            }
+                          >
+                            {[1, 2, 3, 4, 5, 6].map((value) => (
+                              <option key={value} value={value}>
+                                {value}x{" "}
+                                {value <= 3
+                                  ? "sem juros"
+                                  : "com juros demonstrativos"}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                      ) : null}
+                    </div>
+                  </Tabs.Content>
+                ))}
+              </Tabs.Root>
+              <div className="step-buttons">
+                <button className="button-secondary" onClick={() => setStep(1)}>
+                  Voltar
+                </button>
+                <button className="button-primary" onClick={continuePayment}>
+                  Revisar pedido
+                </button>
+              </div>
+            </div>
+          ) : null}
+          {step === 3 ? (
+            <div className="checkout-form review-panel">
+              <h2>Confere tudo</h2>
+              <dl>
+                <div>
+                  <dt>Cliente</dt>
+                  <dd>
+                    {identity?.name}
+                    <br />
+                    {identity?.email}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Entrega</dt>
+                  <dd>
+                    {shipping === "pickup"
+                      ? "Retirada na loja"
+                      : `${address.street}, ${address.number} · ${address.city}-${address.uf}`}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Pagamento</dt>
+                  <dd>
+                    {payment === "pix"
+                      ? "Pix com 5% de desconto"
+                      : payment === "credit"
+                        ? `Crédito em ${card.installments}x`
+                        : "Débito à vista"}
+                  </dd>
+                </div>
+              </dl>
+              <div className="step-buttons">
+                <button className="button-secondary" onClick={() => setStep(2)}>
+                  Voltar
+                </button>
+                <button
+                  className="button-primary"
+                  onClick={finish}
+                  disabled={processing}
+                >
+                  {processing
+                    ? "Confirmando demonstração…"
+                    : "Finalizar pedido demonstrativo"}
+                </button>
+              </div>
+            </div>
+          ) : null}
+        </section>
+        <aside>
+          <h2>Resumo da arara</h2>
+          {lines.map((item) => (
+            <p key={`${item.productId}-${item.size}`}>
+              <span>
+                {item.quantity}× {item.product.name}
+              </span>
+              <strong>{formatPrice(item.product.price * item.quantity)}</strong>
+            </p>
+          ))}
+          <hr />
+          <p>
+            <span>Subtotal</span>
+            <strong>{formatPrice(totals.subtotal)}</strong>
+          </p>
+          <p>
+            <span>Descontos</span>
+            <strong>
+              - {formatPrice(totals.couponDiscount + totals.paymentDiscount)}
+            </strong>
+          </p>
+          <p>
+            <span>Entrega</span>
+            <strong>
+              {totals.shipping ? formatPrice(totals.shipping) : "Grátis"}
+            </strong>
+          </p>
+          <p className="checkout-total">
+            <span>Total</span>
+            <strong>{formatPrice(totals.total)}</strong>
+          </p>
+          <small>Nenhum dado de cartão é enviado ou armazenado.</small>
+        </aside>
+      </div>
+    </div>
+  );
+}

@@ -21,10 +21,13 @@ export function filterProducts(items: Product[], filters: ProductFilters) {
   const hasMin = Number.isFinite(min) && min >= 0;
   const hasMax = Number.isFinite(max) && max >= 0;
   const search = filters.search?.trim().toLocaleLowerCase("pt-BR");
+  const category = filters.category && items.some((product) => product.category === filters.category) ? filters.category : undefined;
+  const size = filters.size && items.some((product) => product.sizes.includes(filters.size!)) ? filters.size : undefined;
+  const color = filters.color && items.some((product) => product.colors.some((entry) => entry.name === filters.color)) ? filters.color : undefined;
   return items.filter((product) => {
-    if (filters.category && product.category !== filters.category) return false;
-    if (filters.size && !product.sizes.includes(filters.size)) return false;
-    if (filters.color && !product.colors.some((color) => color.name === filters.color)) return false;
+    if (category && product.category !== category) return false;
+    if (size && !product.sizes.includes(size)) return false;
+    if (color && !product.colors.some((entry) => entry.name === color)) return false;
     if (hasMin && product.price < min) return false;
     if (hasMax && product.price > max) return false;
     if (filters.weekly && !product.tags.includes("novidade")) return false;

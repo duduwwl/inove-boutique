@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, ShoppingBag } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 import type { Product } from "@/data/products";
 import { formatPrice } from "@/lib/shop";
@@ -13,7 +14,9 @@ export function ProductCard({ product, editorial = false }: { product: Product; 
   const toggleFavorite = useShopStore((state) => state.toggleFavorite);
   const addItem = useShopStore((state) => state.addItem);
   const availableSize = product.sizes.find((size) => product.stock[size] > 0) ?? product.sizes[0];
-  const add = () => { addItem({ productId: product.id, size: availableSize, color: product.colors[0].name }); toast.success(`${product.name} foi para a sacola.`); };
+  const [size, setSize] = useState(availableSize);
+  const [color, setColor] = useState(product.colors[0].name);
+  const add = () => { addItem({ productId: product.id, size, color }); toast.success(`${product.name} · ${color} · ${size} foi para a sacola.`); };
   return <article className={`product-card ${editorial ? "is-editorial" : ""}`}>
     <div className="product-media">
       <Link href={`/produto/${product.slug}`}><Image className="primary-image" src={product.images[0].src} alt={product.images[0].alt} width={product.images[0].width} height={product.images[0].height} sizes="(max-width: 700px) 50vw, (max-width: 1100px) 33vw, 25vw" /><Image className="secondary-image" src={product.images[1].src} alt="" width={product.images[1].width} height={product.images[1].height} sizes="(max-width: 700px) 50vw, (max-width: 1100px) 33vw, 25vw" /></Link>
@@ -21,7 +24,7 @@ export function ProductCard({ product, editorial = false }: { product: Product; 
       {product.tags.includes("novidade") ? <span className="edition-stamp">Edição nº 47</span> : null}
     </div>
     <div className="product-info"><div><h2><Link href={`/produto/${product.slug}`}>{product.name}</Link></h2><p>{product.colors.map((color) => color.name).join(" · ")}</p></div><div className="price"><strong>{formatPrice(product.price)}</strong><small>ou 3x sem juros</small></div></div>
-    <div className="product-swatches" aria-label="Cores disponíveis">{product.colors.map((color) => <span key={color.name} title={color.name} style={{ background: color.hex }} />)}</div>
+    <div className="product-choices"><div className="product-swatches" aria-label="Cores disponíveis">{product.colors.map((entry) => <button key={entry.name} className={color === entry.name ? "active" : ""} aria-label={`Escolher ${entry.name}`} onClick={() => setColor(entry.name)} style={{ background: entry.hex }} />)}</div><label><span className="sr-only">Tamanho</span><select value={size} onChange={(event) => setSize(event.target.value)}>{product.sizes.map((entry) => <option key={entry} disabled={!product.stock[entry]}>{entry}</option>)}</select></label></div>
     <button className="quick-add" onClick={add}><ShoppingBag size={17} /> + sacola</button>
   </article>;
 }

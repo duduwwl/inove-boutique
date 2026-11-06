@@ -1,1 +1,6 @@
-import type {MetadataRoute} from "next";export default function robots():MetadataRoute.Robots{return{rules:{userAgent:"*",allow:"/",disallow:["/checkout","/pedido/"]},sitemap:"https://inove-boutique.vercel.app/sitemap.xml"}}
+import type { MetadataRoute } from "next";
+import { siteUrl } from "@/lib/site-url";
+
+export default function robots(): MetadataRoute.Robots {
+  return { rules: { userAgent: "*", allow: "/", disallow: ["/checkout", "/pedido/"] }, sitemap: `${siteUrl}/sitemap.xml` };
+}

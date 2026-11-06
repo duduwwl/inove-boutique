@@ -50,6 +50,30 @@ for (const payment of ["Pix", "Crédito", "Débito"] as const) {
   });
 }
 
+test("bloqueia entrega e cartão incompletos", async ({ page }) => {
+  await addFirstProduct(page);
+  await page.getByLabel("Nome completo").fill("Maria Teste");
+  await page.getByLabel("E-mail").fill("maria@example.com");
+  await page.getByLabel("Celular").fill("(35) 99999-9999");
+  await page.getByLabel("CPF").fill("529.982.247-25");
+  await page.getByRole("button", { name: "Continuar para entrega" }).click();
+  await page.getByText("Motoboy Varginha").click();
+  await page.getByRole("button", { name: "Continuar para pagamento" }).click();
+  await expect(page.getByText("Preencha um endereço válido para entrega.")).toBeVisible();
+  await page.getByText("Retirar na loja").click();
+  await page.getByRole("button", { name: "Continuar para pagamento" }).click();
+  await page.getByRole("tab", { name: "Crédito" }).click();
+  await page.getByRole("button", { name: "Revisar pedido" }).click();
+  await expect(page.getByText("Confira número, nome, validade e CVV do cartão.")).toBeVisible();
+});
+
+test("ignora persistência corrompida", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("inove-shop", JSON.stringify({ state: { cart: "quebrado", favorites: 42, coupon: null }, version: 1 })));
+  await page.goto("/loja");
+  await expect(page.getByRole("button", { name: "Abrir sacola com 0 itens" })).toBeVisible();
+  await expect(page.getByText("36 peças na arara")).toBeVisible();
+});
+
 test("rotas públicas respondem sem erro", async ({ page }) => {
   for (const route of ["/", "/loja", "/produto/regata-canelada-essencial", "/sacola", "/favoritos", "/sobre", "/trocas", "/pedido/IB47-DEMO", "/nao-existe"]) {
     const response = await page.goto(route);

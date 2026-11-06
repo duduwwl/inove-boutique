@@ -28,6 +28,21 @@ export function isValidLuhn(value: string) {
   return sum % 10 === 0;
 }
 
+type AddressFields = { cep: string; street: string; number: string; district: string; city: string; uf: string };
+type CardFields = { number: string; name: string; expiry: string; cvv: string };
+
+export function isCompleteAddress(address: AddressFields) {
+  return digits(address.cep).length === 8 && [address.street, address.number, address.district, address.city].every((value) => value.trim().length > 0) && /^[A-Za-z]{2}$/.test(address.uf);
+}
+
+export function isValidCardDetails(card: CardFields, now = new Date()) {
+  const expiry = card.expiry.match(/^(0[1-9]|1[0-2])\/(\d{2})$/);
+  if (!expiry || !isValidLuhn(card.number) || card.name.trim().length < 3 || !/^\d{3,4}$/.test(card.cvv)) return false;
+  const month = Number(expiry[1]);
+  const year = 2000 + Number(expiry[2]);
+  return new Date(year, month, 1) > now;
+}
+
 export function cardBrand(value: string): CardBrand {
   const number = digits(value);
   if (/^4/.test(number)) return "Visa";

@@ -1,0 +1,1 @@
+import type {MetadataRoute} from "next";export default function manifest():MetadataRoute.Manifest{return{name:"Inove Boutique · A Arara da Semana",short_name:"Inove Boutique",description:"Novidades toda semana em Varginha-MG.",start_url:"/",display:"standalone",background_color:"#F3EDE4",theme_color:"#5B1E2D",icons:[{src:"/icon.svg",sizes:"any",type:"image/svg+xml"}]}}

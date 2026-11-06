@@ -1,0 +1,1 @@
+import Link from "next/link";import {Monogram} from "@/components/monogram";export default function NotFound(){return <div className="not-found"><Monogram/><p>404</p><h1 className="display">Essa peça já saiu da arara.</h1><Link className="button-primary" href="/">Voltar para a edição</Link></div>}

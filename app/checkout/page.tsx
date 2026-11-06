@@ -1,0 +1,1 @@
+import type {Metadata} from "next";import {CheckoutFlow} from "@/components/checkout/checkout-flow";export const metadata:Metadata={title:"Checkout demonstrativo",robots:{index:false,follow:false}};export default function Page(){return <CheckoutFlow/>}

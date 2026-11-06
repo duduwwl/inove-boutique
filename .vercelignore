@@ -1,0 +1,6 @@
+work/
+test-results/
+playwright-report/
+.taste-skill/
+public/images/inove/*.png
+AGENTS.md

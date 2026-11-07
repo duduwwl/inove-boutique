@@ -12,9 +12,10 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: { default: "Inove Boutique · A Arara da Semana", template: "%s · Inove Boutique" },
   description: "Novidades toda semana e atendimento exclusivo em Varginha-MG.",
-  openGraph: { title: "Inove Boutique", description: "A Arara da Semana · Edição nº 47", images: ["/images/inove/hero-regata-linho.webp"], locale: "pt_BR", type: "website" },
+  openGraph: { title: "Inove Boutique", description: "A Arara da Semana · Edição nº 47", images: ["/images/inove/instagram/post-02.webp"], locale: "pt_BR", type: "website" },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return <html lang="pt-BR" data-scroll-behavior="smooth" className={`${bodoni.variable} ${hanken.variable}`}><body><ShopProvider><a className="skip-link" href="#conteudo">Pular para o conteúdo</a><SiteHeader /><main id="conteudo">{children}</main></ShopProvider></body></html>;
 }
+

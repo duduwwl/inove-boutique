@@ -5,13 +5,12 @@ import useEmblaCarousel from "embla-carousel-react";
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ArrowDown, ArrowUp, Instagram, MapPin, Play, ShoppingBag, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Instagram, MapPin, ShoppingBag, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Monogram } from "@/components/monogram";
 import type { Product } from "@/data/products";
 import { products } from "@/data/products";
-import { nextThursdayAtEight } from "@/lib/checkout";
 import { formatPrice } from "@/lib/shop";
 import { useShopStore } from "@/store/shop-store";
 
@@ -19,10 +18,13 @@ const rackProducts = products.slice(0, 5);
 const topProducts = products.filter((product) => ["Croppeds", "Regatas & Blusas", "Bodies"].includes(product.category));
 const bottomProducts = products.filter((product) => ["Shorts", "Vestidos"].includes(product.category));
 const palette = [
-  { name: "Cinza", hex: "#8F9091" }, { name: "Verde-água", hex: "#A8CDC5" },
-  { name: "Manteiga", hex: "#E9D96F" }, { name: "Nude", hex: "#D5B29D" },
-  { name: "Chocolate", hex: "#6E4435" }, { name: "Royal", hex: "#3956B5" },
-  { name: "Preto", hex: "#1D1B1B" },
+  { name: "Cinza", hex: "#8F9091", src: "/images/inove/instagram/post-02.webp", alt: "Modelo usando cropped nadador cinza da Inove Boutique" },
+  { name: "Verde-água", hex: "#A8CDC5", src: "/images/inove/instagram/post-03.webp", alt: "Croppeds verde-água, manteiga e nude na arara da Inove Boutique" },
+  { name: "Manteiga", hex: "#E9D96F", src: "/images/inove/instagram/post-06.webp", alt: "Modelo usando regata manteiga da Inove Boutique" },
+  { name: "Nude", hex: "#D5B29D", src: "/images/inove/instagram/post-09.webp", alt: "Croppeds preto e nude na arara da Inove Boutique" },
+  { name: "Chocolate", hex: "#6E4435", src: "/images/inove/instagram/post-04.webp", alt: "Modelo usando shorts chocolate da Inove Boutique" },
+  { name: "Royal", hex: "#3956B5", src: "/images/inove/instagram/post-05.webp", alt: "Shorts royal e chocolate na arara da Inove Boutique" },
+  { name: "Preto", hex: "#1D1B1B", src: "/images/inove/instagram/post-08.webp", alt: "Modelo usando cropped preto da Inove Boutique" },
 ];
 const shortNames: Record<string, string> = {
   "cropped-suplex-poliamida-nadador": "Cropped Nadador",
@@ -50,22 +52,6 @@ function BrandLoader() {
   }, []);
 
   return <AnimatePresence>{visible ? <motion.div className="brand-loader" initial={{ opacity: 1 }} exit={{ opacity: 0, y: "-100%" }} transition={{ duration: .24 }} aria-hidden="true"><Monogram /><span>A edição abre agora</span></motion.div> : null}</AnimatePresence>;
-}
-
-function Countdown() {
-  const [label, setLabel] = useState("Quinta, 20h");
-
-  useEffect(() => {
-    const update = () => {
-      const diff = Math.max(0, nextThursdayAtEight().getTime() - Date.now());
-      setLabel(`${Math.floor(diff / 86_400_000)}d ${Math.floor(diff / 3_600_000) % 24}h ${Math.floor(diff / 60_000) % 60}min`);
-    };
-    update();
-    const timer = window.setInterval(update, 60_000);
-    return () => window.clearInterval(timer);
-  }, []);
-
-  return <time>{label}</time>;
 }
 
 function QuickView({ product, onClose }: { product: Product | null; onClose: () => void }) {
@@ -98,7 +84,7 @@ function QuickView({ product, onClose }: { product: Product | null; onClose: () 
 function OutfitPicker({ items, viewport, previous, next }: { items: Product[]; viewport: (node: HTMLDivElement | null) => void; previous: () => void; next: () => void }) {
   return <div className="outfit-picker">
     <button onClick={previous} aria-label="Peça anterior"><ArrowUp /></button>
-    <div className="outfit-viewport" ref={viewport}><div className="outfit-carousel">{items.map((item) => <div className="outfit-slide" key={item.id} style={{ backgroundColor: item.colors[0].hex, color: ["#1D1B1B", "#6E4435", "#3956B5"].includes(item.colors[0].hex) ? "white" : "black" }}><strong>{shortNames[item.slug]}</strong><small>{formatPrice(item.price)} · {item.category}</small></div>)}</div></div>
+    <div className="outfit-viewport" ref={viewport}><div className="outfit-carousel">{items.map((item) => <div className="outfit-slide" key={item.id}><Image src={item.images[0].src} alt={item.images[0].alt} fill sizes="(max-width: 700px) 42vw, 24vw" /><div className="outfit-slide-copy"><strong>{shortNames[item.slug]}</strong><small>{formatPrice(item.price)} · {item.category}</small></div></div>)}</div></div>
     <button onClick={next} aria-label="Próxima peça"><ArrowDown /></button>
   </div>;
 }
@@ -146,6 +132,7 @@ export function HomeExperience() {
   const reduceMotion = useReducedMotion();
   const [quickView, setQuickView] = useState<Product | null>(null);
   const [activeColor, setActiveColor] = useState(palette[0]);
+  const palettePhoto = useMemo(() => ({ src: activeColor.src, alt: activeColor.alt }), [activeColor]);
   const rackRef = useRef<HTMLDivElement>(null);
   const lookbookRef = useRef<HTMLElement>(null);
 
@@ -208,22 +195,19 @@ export function HomeExperience() {
     </section>
 
     <section className="rack-section section" id="arara" aria-labelledby="rack-title"><div className="container"><div className="rack-intro"><h2 id="rack-title" className="section-title">Puxe a arara.</h2><p>Arraste. Toque num cabide. Abra a peça sem perder a edição.</p></div>
-      <div className="interactive-rack" ref={rackRef}><div className="rack-bar" /><motion.div className="rack-drag" drag="x" dragConstraints={rackRef} dragElastic={.08}>{rackProducts.map((product) => <motion.button key={product.id} className="motion-hanger" whileHover={reduceMotion ? undefined : { rotate: -2, y: -12 }} whileTap={{ scale: .98 }} transition={{ type: "spring", stiffness: 260, damping: 18 }} onClick={() => setQuickView(product)}><span className="hanger-hook" aria-hidden="true" /><span className="hanger-photo"><Image src={product.images[1]?.src ?? product.images[0].src} alt={product.images[1]?.alt ?? product.images[0].alt} fill sizes="(max-width: 700px) 58vw, 23vw" /></span><span className="hanger-copy"><strong>{product.name}</strong><small>{formatPrice(product.price)}</small></span></motion.button>)}</motion.div></div>
+      <div className="interactive-rack" ref={rackRef}><div className="rack-bar" /><motion.div className="rack-drag" drag="x" dragConstraints={rackRef} dragElastic={.08}>{rackProducts.map((product) => <motion.button key={product.id} className="motion-hanger" whileHover={reduceMotion ? undefined : { rotate: -2, y: -12 }} whileTap={{ scale: .98 }} transition={{ type: "spring", stiffness: 260, damping: 18 }} onClick={() => setQuickView(product)}><span className="hanger-hook" aria-hidden="true" /><span className="hanger-photo"><Image src={product.images[0].src} alt={product.images[0].alt} fill sizes="(max-width: 700px) 58vw, 23vw" /></span><span className="hanger-copy"><strong>{product.name}</strong><small>{formatPrice(product.price)}</small></span></motion.button>)}</motion.div></div>
     </div></section>
 
-    <section className="palette-section section" style={{ backgroundColor: activeColor.hex, color: ["Chocolate", "Royal", "Preto"].includes(activeColor.name) ? "white" : "#1e1c1b" }} aria-labelledby="palette-title"><div className="container"><div className="palette-photo"><Image src="/images/inove/instagram/post-06.webp" alt="Modelo da Inove usando regata viscomalha manteiga" fill sizes="(max-width: 700px) 88vw, 38vw" /></div><div><h2 id="palette-title" className="section-title">A cor muda tudo.</h2><p>Escolha uma cartela. O campo responde na hora.</p><div className="swatch-list">{palette.map((color) => <button key={color.name} className={activeColor.name === color.name ? "active" : ""} onPointerEnter={() => setActiveColor(color)} onFocus={() => setActiveColor(color)} onClick={() => setActiveColor(color)}><span style={{ backgroundColor: color.hex }} />{color.name}</button>)}</div></div></div></section>
+    <section className="palette-section section" style={{ backgroundColor: activeColor.hex, color: ["Chocolate", "Royal", "Preto"].includes(activeColor.name) ? "white" : "#1e1c1b" }} aria-labelledby="palette-title"><div className="container"><div className="palette-photo"><Image src={palettePhoto.src} alt={palettePhoto.alt} fill sizes="(max-width: 700px) 88vw, 38vw" /></div><div><h2 id="palette-title" className="section-title">A cor muda tudo.</h2><p>Escolha uma cartela. O produto muda junto.</p><div className="swatch-list">{palette.map((color) => <button key={color.name} className={activeColor.name === color.name ? "active" : ""} onPointerEnter={() => setActiveColor(color)} onFocus={() => setActiveColor(color)} onClick={() => setActiveColor(color)}><span style={{ backgroundColor: color.hex }} />{color.name}</button>)}</div></div></div></section>
 
     <OutfitBuilder />
 
     <section className="rising-lookbook" id="lookbook" ref={lookbookRef} aria-labelledby="lookbook-title"><div className="lookbook-stage"><div className="lookbook-heading"><h2 id="lookbook-title" className="section-title">Três formas de chegar.</h2><p>Produtos reais. Enquadramentos do feed. Nenhuma foto repetida.</p></div><div className="lookbook-triptych"><figure className="lookbook-photo"><Image src="/images/inove/instagram/post-08.webp" alt="Modelo usando cropped cirrê preto" fill sizes="30vw" /><figcaption>Cropped Cirrê · R$ 29,99</figcaption></figure><figure className="lookbook-photo"><Image src="/images/inove/instagram/post-12.webp" alt="Modelo usando vestido camisetão cinza" fill sizes="40vw" /><figcaption>Vestido Camisetão · R$ 39,99</figcaption></figure><figure className="lookbook-photo"><Image src="/images/inove/instagram/post-10.webp" alt="Modelo usando body Ana preto" fill sizes="30vw" /><figcaption>Body Ana · R$ 29,99</figcaption></figure></div></div></section>
 
-    <section className="live-section section" id="live" aria-labelledby="live-title"><div className="container"><div className="live-poster"><Image src="/images/inove/instagram/post-01.webp" alt="Publicação da Inove anunciando live" fill sizes="(max-width: 700px) 90vw, 34vw" /></div><div><h2 id="live-title" className="section-title">A live voltou.</h2><div className="live-mark" aria-hidden="true"><span /><Play fill="currentColor" /></div><div className="live-time"><Countdown /><span>até a próxima live</span></div><p>Live Inove: novidades, medidas e combinações em tempo real no Instagram.</p><button className="button-primary" onClick={() => toast.success("Lembrete demonstrativo ativado.")}>Me avisa</button></div></div></section>
+    <section className="service-contact section" id="atendimento" aria-labelledby="service-title"><div className="container"><h2 id="service-title">Separa pra mim.</h2><div className="service-place"><MapPin /><span><strong>Loja Inove Boutique</strong><br />Rua Presidente Antônio Carlos, 378<br />Centro, Varginha — MG<br /><a href="https://www.google.com/maps/search/?api=1&query=Inove+Boutique+Rua+Presidente+Antonio+Carlos+378+Varginha+MG" target="_blank" rel="noreferrer">Abrir localização no Google Maps</a></span></div><div><p>Te atendemos no direct ou no WhatsApp antes que a peça acabe.</p><a href="https://wa.me/5535992582086?text=Oi%2C%20vi%20a%20edi%C3%A7%C3%A3o%2047%20e%20quero%20separar%20uma%20pe%C3%A7a.">WhatsApp</a><a href="https://www.instagram.com/inoveboutique_/">Instagram</a><small>Estoque e medidas sob consulta.</small></div></div></section>
 
-    <section className="service-contact section" id="atendimento" aria-labelledby="service-title"><div className="container"><h2 id="service-title">Separa pra mim.</h2><div className="service-place"><MapPin /><span>Rua Presidente Antônio Carlos, 378<br />Centro · Varginha-MG</span></div><div><p>Te atendemos no direct ou no zap antes que a peça acabe.</p><a href="https://wa.me/5535992582086?text=Oi%2C%20vi%20a%20edi%C3%A7%C3%A3o%2047%20e%20quero%20separar%20uma%20pe%C3%A7a.">WhatsApp</a><a href="https://www.instagram.com/inoveboutique_/">Instagram</a><small>Site demonstrativo · estoque sob consulta</small></div></div></section>
-
-    <section className="instagram-ledger section" aria-labelledby="feed-title"><div className="container"><h2 id="feed-title" className="section-title">Direto do feed.</h2><div>{products.map((product) => <a href={product.sourceUrl} target="_blank" rel="noreferrer" key={product.id}><span>{product.name}</span><span>{formatPrice(product.price)}</span><Instagram /></a>)}</div></div></section>
+    <section className="instagram-collage section" aria-labelledby="feed-title"><div className="container"><div className="collage-heading"><div><p className="eyebrow">@inoveboutique_</p><h2 id="feed-title" className="section-title">Quadro da semana.</h2></div><a className="button-secondary" href="https://www.instagram.com/inoveboutique_/" target="_blank" rel="noreferrer"><Instagram size={17} /> Ver Instagram</a></div><div className="collage-grid">{products.flatMap((product) => product.images).slice(0, 8).map((photo, index) => <a href="https://www.instagram.com/inoveboutique_/" target="_blank" rel="noreferrer" key={photo.src}><Image src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} /><span>{String(index + 1).padStart(2, "0")}</span></a>)}</div></div></section>
 
     <QuickView product={quickView} onClose={() => setQuickView(null)} />
   </>;
 }
-

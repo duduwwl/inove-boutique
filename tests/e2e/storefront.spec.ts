@@ -20,7 +20,7 @@ async function identifyAndDeliver(page: Page) {
 test("filtra, abre produto, adiciona, edita sacola e aplica cupom", async ({ page }) => {
   await page.goto("/loja");
   await page.getByRole("button", { name: "Shorts", exact: true }).click();
-  await expect(page.getByText("1 peças na arara")).toBeVisible();
+  await expect(page.getByText("1 peça na arara")).toBeVisible();
   const productLink = page.locator(".product-card").first().getByRole("link").first();
   const productHref = await productLink.getAttribute("href");
   await productLink.click();
@@ -80,4 +80,3 @@ test("rotas públicas respondem sem erro", async ({ page }) => {
     expect(response?.status(), route).toBeLessThan(500);
   }
 });
-

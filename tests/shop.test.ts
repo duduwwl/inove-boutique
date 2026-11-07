@@ -16,9 +16,9 @@ describe("regras comerciais demonstrativas", () => {
   });
 
   it("ignora filtros inválidos e combina categoria, tamanho e busca", () => {
-    expect(filterProducts(products, { min: "x", max: "-1" })).toHaveLength(36);
-    expect(filterProducts(products, { category: "Inválida", size: "XP", color: "Magenta" })).toHaveLength(36);
-    const filtered = filterProducts(products, { category: "Shorts", size: "M", search: "linho" });
+    expect(filterProducts(products, { min: "x", max: "-1" })).toHaveLength(6);
+    expect(filterProducts(products, { category: "Inválida", size: "XP", color: "Magenta" })).toHaveLength(6);
+    const filtered = filterProducts(products, { category: "Shorts", size: "M", search: "crepe" });
     expect(filtered.length).toBeGreaterThan(0);
     expect(filtered.every((product) => product.category === "Shorts" && product.sizes.includes("M"))).toBe(true);
   });

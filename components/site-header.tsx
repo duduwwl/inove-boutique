@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Monogram } from "@/components/monogram";
 import { useShopStore } from "@/store/shop-store";
 
-const links = [["Novidades", "/loja?weekly=1"], ["Loja", "/loja"], ["Lookbook", "/#lookbook"], ["Live", "/#live"], ["Atendimento", "/#atendimento"]];
+const links = [["Novidades", "/loja?weekly=1"], ["Loja", "/loja"], ["Lookbook", "/#lookbook"], ["Atendimento", "/#atendimento"]];
 
 export function SiteHeader() {
   const [menu, setMenu] = useState(false);

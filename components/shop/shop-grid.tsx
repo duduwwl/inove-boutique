@@ -1,7 +1,7 @@
 "use client";
 
 import { Filter, Search, X } from "lucide-react";
-import { useDeferredValue, useMemo, useState } from "react";
+import { useDeferredValue, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Drawer } from "vaul";
 import { categories, products } from "@/data/products";
@@ -16,7 +16,7 @@ export function ShopGrid() {
   const searchParams = useSearchParams(); const router = useRouter(); const pathname = usePathname();
   const [search, setSearch] = useState(searchParams.get("search") ?? ""); const deferredSearch = useDeferredValue(search);
   const [drawer, setDrawer] = useState(false);
-  const params = useMemo(() => new URLSearchParams(searchParams.toString()), [searchParams]);
+  const params = new URLSearchParams(searchParams.toString());
   const setParam = (key: string, value?: string) => { const next = new URLSearchParams(params); if (value) next.set(key,value); else next.delete(key); router.replace(`${pathname}?${next.toString()}`, { scroll:false }); };
   const filters = { category:params.get("category")??undefined,size:params.get("size")??undefined,color:params.get("color")??undefined,min:params.get("min")??undefined,max:params.get("max")??undefined,weekly:params.get("weekly")==="1",inStock:params.get("stock")==="1",search:deferredSearch };
   const ordering = params.get("order") ?? "relevance";
@@ -42,7 +42,7 @@ export function ShopGrid() {
   </div>;
   return <div className="shop-shell container"><aside>{filterPanel}</aside><div className="shop-results">
     <div className="shop-toolbar"><label className="search-field"><Search /><span className="sr-only">Buscar</span><input value={search} onChange={(event)=>setSearch(event.target.value)} onBlur={()=>setParam("search",search||undefined)} placeholder="Buscar por peça ou cor" /></label><button className="mobile-filter" onClick={()=>setDrawer(true)}><Filter /> Filtrar</button><label>Ordenar <select value={ordering} onChange={(event)=>setParam("order",event.target.value)}><option value="relevance">Relevância</option><option value="new">Novidades</option><option value="price-asc">Menor preço</option><option value="price-desc">Maior preço</option></select></label></div>
-    <p className="result-count">{filtered.length} peças na arara</p>
+    <p className="result-count">{filtered.length} {filtered.length === 1 ? "peça" : "peças"} na arara</p>
     {activeFilters.length ? <div className="active-filters" aria-label="Filtros ativos">{activeFilters.map((entry)=><button key={entry.key} onClick={()=>setParam(entry.key)}>{entry.label} <X size={14} /></button>)}</div> : null}
     {filtered.length ? <div className="product-grid">{filtered.map((product,index)=><ProductCard key={product.id} product={product} editorial={index>0 && index%8===0} />)}</div> : <div className="shop-empty"><h2>Essa combinação saiu da arara.</h2><p>Tire um filtro ou veja todas as peças da edição.</p><button className="button-primary" onClick={clear}>Ver todas</button></div>}
     <Drawer.Root open={drawer} onOpenChange={setDrawer}><Drawer.Portal><Drawer.Overlay className="dialog-overlay" /><Drawer.Content className="filter-drawer"><div className="drawer-handle" aria-hidden="true" /><div className="drawer-heading"><Drawer.Title>Filtrar a arara</Drawer.Title><Drawer.Close className="icon-button" aria-label="Fechar filtros"><X /></Drawer.Close></div>{filterPanel}</Drawer.Content></Drawer.Portal></Drawer.Root>

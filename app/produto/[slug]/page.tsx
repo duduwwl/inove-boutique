@@ -48,6 +48,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <span>ou 3x de {formatPrice(product.price / 3)} sem juros</span>
         </div>
         <p>{product.description}</p>
+        <a className="source-link" href={product.sourceUrl} target="_blank" rel="noreferrer">Ver publicação original no Instagram</a>
         <ProductActions product={product} />
         <div className="product-accordions">
           <details open><summary>Descrição</summary><p>{product.description}</p></details>
@@ -64,3 +65,4 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     <SiteFooter />
   </>;
 }
+

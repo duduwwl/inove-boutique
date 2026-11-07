@@ -520,7 +520,7 @@ export function CheckoutFlow() {
               <strong>{formatPrice(item.product.price * item.quantity)}</strong>
             </p>
           ))}
-          <hr />
+          <div className="checkout-divider" role="separator" />
           <p>
             <span>Subtotal</span>
             <strong>{formatPrice(totals.subtotal)}</strong>
@@ -547,3 +547,4 @@ export function CheckoutFlow() {
     </div>
   );
 }
+

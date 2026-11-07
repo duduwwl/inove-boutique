@@ -3,7 +3,7 @@
 ## Ideia
 
 **A Arara da Semana** transforma o site numa revista que muda toda quinta-feira.
-Na página, a arara real da Inove vira o quadro fixo da direção `The pinned poster` (seed `1011693746`); produtos, cores e looks passam por ela como novas capas da mesma edição.
+Na página, as fotos reais da arara e das modelos viram impressões de tamanhos desiguais na direção `Photographs at uneven sizes` (seed `1641050887`).
 
 O gesto interativo central é arrastar a arara, balançar os cabides e abrir a peça sem sair da edição.
 
@@ -55,8 +55,8 @@ Proporção alvo: 70% linho/papel, 20% grafite/foto, 8% vinho, 2% dourado.
 - Margens: `16px` em 360–430, `24px` em tablet, `32px` em desktop.
 - Desktop: 12 colunas; tablet: 8; mobile: 4.
 - Mídia mantém cantos retos; controles usam raio máximo de `2px`.
-- O hero divide “Chegou” e “quinta.” por uma moldura vertical.
-- A home alterna quadro fixo, campo de cor, colunas desalinhadas e faixa horizontal.
+- O hero escalona “Chegou” e “quinta.” entre duas fotografias reais.
+- A home alterna banda desigual, arara arrastável, campo de cor e triptico fixado.
 - A loja usa grade funcional; um painel editorial rompe o ritmo a cada oito produtos.
 
 ```text
@@ -77,7 +77,9 @@ MOBILE
 
 ## Motion
 
-- Movimento assinatura: quadro fixo com capas mudando por scroll nativo.
+- Movimento assinatura: duas linhas do hero surgem por máscara; cabides respondem com mola.
+- Motion controla drag, hover, presença e transições de layout.
+- Embla move os seletores; GSAP fixa o lookbook; Lenis suaviza apenas quando permitido.
 - Cabides: mola curta, `duration: 0.5`, `bounce: 0.16`.
 - Controles: `100–180ms`; drawers e dialogs: `220–360ms`.
 - Curvas: `cubic-bezier(0.23, 1, 0.32, 1)` e `cubic-bezier(0.32, 0.72, 0, 1)`.
@@ -108,6 +110,7 @@ Português brasileiro curto, próximo e confiante. Sem slogans genéricos.
 
 ## Conteúdo substituível
 
-Fotos editoriais geradas ou licenciadas são demonstração até a loja fornecer imagens próprias.
+As fotos de produto vêm dos 12 posts públicos atuais do `@inoveboutique_` e mantêm URL de origem no catálogo.
 Horário, estoque, preços, fretes, políticas, live e “provador em casa” são conteúdo demonstrativo.
+
 

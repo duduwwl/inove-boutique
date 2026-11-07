@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
 async function addFirstProduct(page: Page) {
-  await page.goto("/produto/regata-canelada-essencial");
+  await page.goto("/produto/cropped-suplex-poliamida-nadador");
   await page.getByRole("button", { name: "P", exact: true }).click();
   await page.getByRole("button", { name: "Adicionar à sacola" }).click();
   await expect(page.getByRole("dialog", { name: "Sua sacola" })).toBeVisible();
@@ -20,12 +20,12 @@ async function identifyAndDeliver(page: Page) {
 test("filtra, abre produto, adiciona, edita sacola e aplica cupom", async ({ page }) => {
   await page.goto("/loja");
   await page.getByRole("button", { name: "Shorts", exact: true }).click();
-  await expect(page.getByText("4 peças na arara")).toBeVisible();
+  await expect(page.getByText("1 peças na arara")).toBeVisible();
   const productLink = page.locator(".product-card").first().getByRole("link").first();
   const productHref = await productLink.getAttribute("href");
   await productLink.click();
   await page.waitForURL(`**${productHref}`);
-  await page.getByRole("button", { name: "P", exact: true }).click();
+  await page.getByRole("button", { name: "M", exact: true }).click();
   await page.getByRole("button", { name: "Adicionar à sacola" }).click();
   await page.getByRole("link", { name: "Ver sacola completa" }).click();
   await page.getByLabel("Cupom demonstrativo").fill("INOVE10");
@@ -71,12 +71,13 @@ test("ignora persistência corrompida", async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem("inove-shop", JSON.stringify({ state: { cart: "quebrado", favorites: 42, coupon: null }, version: 1 })));
   await page.goto("/loja");
   await expect(page.getByRole("button", { name: "Abrir sacola com 0 itens" })).toBeVisible();
-  await expect(page.getByText("36 peças na arara")).toBeVisible();
+  await expect(page.getByText("6 peças na arara")).toBeVisible();
 });
 
 test("rotas públicas respondem sem erro", async ({ page }) => {
-  for (const route of ["/", "/loja", "/produto/regata-canelada-essencial", "/sacola", "/favoritos", "/sobre", "/trocas", "/pedido/IB47-DEMO", "/nao-existe"]) {
+  for (const route of ["/", "/loja", "/produto/cropped-suplex-poliamida-nadador", "/sacola", "/favoritos", "/sobre", "/trocas", "/pedido/IB47-DEMO", "/nao-existe"]) {
     const response = await page.goto(route);
     expect(response?.status(), route).toBeLessThan(500);
   }
 });
+

@@ -3,7 +3,7 @@ import path from "node:path";
 
 const widths = [360, 390, 430, 768, 834, 1024, 1280, 1440, 1920];
 const pages = [
-  ["home", "/"], ["loja", "/loja"], ["produto", "/produto/regata-canelada-essencial"],
+  ["home", "/"], ["loja", "/loja"], ["produto", "/produto/cropped-suplex-poliamida-nadador"],
   ["sacola", "/sacola"], ["checkout", "/checkout"], ["favoritos", "/favoritos"],
   ["sobre", "/sobre"], ["trocas", "/trocas"], ["pedido", "/pedido/IB47-DEMO"], ["404", "/nao-existe"],
 ] as const;
@@ -18,3 +18,4 @@ test("captura páginas nas nove larguras", async ({ page }) => {
     }
   }
 });
+

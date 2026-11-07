@@ -19,7 +19,7 @@ export function ProductCard({ product, editorial = false }: { product: Product; 
   const add = () => { addItem({ productId: product.id, size, color }); toast.success(`${product.name} · ${color} · ${size} foi para a sacola.`); };
   return <article className={`product-card ${editorial ? "is-editorial" : ""}`}>
     <div className="product-media">
-      <Link href={`/produto/${product.slug}`}><Image className="primary-image" src={product.images[0].src} alt={product.images[0].alt} width={product.images[0].width} height={product.images[0].height} sizes="(max-width: 700px) 50vw, (max-width: 1100px) 33vw, 25vw" /><Image className="secondary-image" src={product.images[1].src} alt="" width={product.images[1].width} height={product.images[1].height} sizes="(max-width: 700px) 50vw, (max-width: 1100px) 33vw, 25vw" /></Link>
+      <Link href={`/produto/${product.slug}`}><Image className="primary-image" src={product.images[0].src} alt={product.images[0].alt} width={product.images[0].width} height={product.images[0].height} sizes="(max-width: 700px) 50vw, (max-width: 1100px) 33vw, 25vw" />{product.images[1] ? <Image className="secondary-image" src={product.images[1].src} alt={`${product.name}, outra vista`} width={product.images[1].width} height={product.images[1].height} sizes="(max-width: 700px) 50vw, (max-width: 1100px) 33vw, 25vw" /> : null}</Link>
       <button className="favorite-button" onClick={() => toggleFavorite(product.id)} aria-label={favorite ? `Remover ${product.name} dos favoritos` : `Favoritar ${product.name}`}><Heart fill={favorite ? "currentColor" : "none"} /></button>
       {product.tags.includes("novidade") ? <span className="edition-stamp">Edição nº 47</span> : null}
     </div>
@@ -28,3 +28,4 @@ export function ProductCard({ product, editorial = false }: { product: Product; 
     <button className="quick-add" onClick={add}><ShoppingBag size={17} /> + sacola</button>
   </article>;
 }
+

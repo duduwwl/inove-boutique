@@ -22,82 +22,123 @@ export type Product = {
   description: string;
   composition: string;
   care: string;
+  sourceUrl: `https://www.instagram.com/${string}`;
+  sourceCaption: string;
 };
 
-const palette: Record<string, string> = {
-  Cinza: "#8C8781", "Verde-água": "#83AFA6", Manteiga: "#E8D487", Nude: "#C7A68D",
-  Chocolate: "#56392D", Royal: "#2448A8", Terracota: "#A6543F", Preto: "#1E1C1B", "Off-white": "#F3EDE4",
-};
-
-const images = [
-  { src: "/images/inove/hero-regata-linho.webp", alt: "Modelo com regata off-white e short de linho chocolate em escada de concreto", width: 1120, height: 1400 },
-  { src: "/images/inove/look-regata-grafite.webp", alt: "Modelo com regata grafite e calça preta em ambiente de concreto", width: 1120, height: 1400 },
-  { src: "/images/inove/arara-cartela.webp", alt: "Arara com peças da cartela semanal em cabides transparentes", width: 1120, height: 1400 },
-  { src: "/images/inove/look-manteiga-linho.webp", alt: "Modelo com cropped manteiga e calça de linho off-white em escada de concreto", width: 1120, height: 1400 },
-  { src: "/images/inove/vestido-royal.webp", alt: "Modelo com vestido midi azul royal em escada escura", width: 1120, height: 1400 },
-  { src: "/images/inove/look-terracota-nude.webp", alt: "Modelo com blusa terracota e short nude no interior da boutique", width: 1120, height: 1400 },
-] satisfies ProductImage[];
-
-type Seed = [string, Category, number, string[]];
-const seeds: Seed[] = [
-  ["Regata Canelada Essencial", "Regatas & Blusas", 69.9, ["Cinza", "Manteiga", "Off-white"]],
-  ["Regata Gola Alta", "Regatas & Blusas", 79.9, ["Chocolate", "Preto"]],
-  ["Blusa Canelada Assimétrica", "Regatas & Blusas", 89.9, ["Terracota", "Nude"]],
-  ["Blusa Manga Curta Premium", "Regatas & Blusas", 79.9, ["Verde-água", "Off-white"]],
-  ["Cropped Nó Frontal", "Croppeds", 79.9, ["Manteiga", "Royal"]],
-  ["Cropped Canelado Reto", "Croppeds", 69.9, ["Cinza", "Preto"]],
-  ["Cropped Um Ombro", "Croppeds", 99.9, ["Terracota", "Off-white"]],
-  ["Cropped Faixa", "Croppeds", 89.9, ["Chocolate", "Nude"]],
-  ["Short Linho Amarração", "Shorts", 129.9, ["Chocolate", "Nude", "Off-white"]],
-  ["Short Alfaiataria", "Shorts", 139.9, ["Preto", "Royal"]],
-  ["Short Linho Pregas", "Shorts", 119.9, ["Manteiga", "Verde-água"]],
-  ["Short Cintura Alta", "Shorts", 129.9, ["Terracota", "Cinza"]],
-  ["Saia Midi Fenda", "Saias", 149.9, ["Preto", "Chocolate"]],
-  ["Saia Curta Alfaiataria", "Saias", 129.9, ["Nude", "Royal"]],
-  ["Saia Pareô Linho", "Saias", 139.9, ["Manteiga", "Terracota"]],
-  ["Calça Pantalona", "Calças", 189.9, ["Preto", "Chocolate"]],
-  ["Calça Alfaiataria Fluida", "Calças", 219.9, ["Royal", "Cinza"]],
-  ["Calça Linho Reta", "Calças", 179.9, ["Nude", "Off-white"]],
-  ["Calça Cenoura", "Calças", 159.9, ["Terracota", "Verde-água"]],
-  ["Vestido Midi Canelado", "Vestidos", 189.9, ["Preto", "Chocolate"]],
-  ["Vestido Alça Minimal", "Vestidos", 169.9, ["Royal", "Manteiga"]],
-  ["Vestido Linho Transpasse", "Vestidos", 259.9, ["Terracota", "Off-white"]],
-  ["Vestido Curto Faixa", "Vestidos", 219.9, ["Verde-água", "Nude"]],
-  ["Conjunto Linho Quinta", "Conjuntos", 289.9, ["Chocolate", "Off-white"]],
-  ["Conjunto Canelado Essencial", "Conjuntos", 229.9, ["Cinza", "Preto"]],
-  ["Conjunto Alfaiataria Royal", "Conjuntos", 329.9, ["Royal", "Nude"]],
-  ["Body Decote Quadrado", "Bodies", 109.9, ["Preto", "Manteiga"]],
-  ["Body Ombro Único", "Bodies", 119.9, ["Terracota", "Off-white"]],
-  ["Body Canelado", "Bodies", 99.9, ["Cinza", "Chocolate"]],
-  ["T-shirt Algodão Premium", "Básicos", 89.9, ["Off-white", "Preto"]],
-  ["Top Faixa Duplo", "Básicos", 59.9, ["Nude", "Manteiga"]],
-  ["Camisa Ampla Linho", "Básicos", 159.9, ["Off-white", "Verde-água"]],
-  ["Regata Manteiga da Semana", "Peças da Semana", 79.9, ["Manteiga"]],
-  ["Short Chocolate da Semana", "Peças da Semana", 129.9, ["Chocolate"]],
-  ["Vestido Royal da Semana", "Peças da Semana", 219.9, ["Royal"]],
-  ["Conjunto Terracota da Semana", "Peças da Semana", 299.9, ["Terracota"]],
-];
-
-const slugify = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-
-export const products: Product[] = seeds.map(([name, category, price, colorNames], index) => {
-  const sizes = category === "Calças" ? ["36", "38", "40", "42", "44", "46"] : ["PP", "P", "M", "G", "GG"];
-  return {
-    id: `inove-${String(index + 1).padStart(2, "0")}`,
-    slug: slugify(name),
-    name,
-    category,
-    price,
-    oldPrice: index % 7 === 0 ? Math.round((price * 1.22) * 10) / 10 : undefined,
-    colors: colorNames.map((color) => ({ name: color, hex: palette[color] })),
-    sizes,
-    stock: Object.fromEntries(sizes.map((size, sizeIndex) => [size, (index + sizeIndex) % 4 === 0 ? 0 : 3 + sizeIndex])),
-    images: [images[index % images.length], images[(index + 1) % images.length]],
-    tags: index < 12 ? ["novidade", "edição"] : index % 3 === 0 ? ["edição"] : ["essencial"],
-    description: `${name} com caimento limpo e acabamento premium. Uma base fácil para a arara desta semana.`,
-    composition: category.includes("Linho") || name.includes("Linho") ? "55% linho, 45% viscose." : "96% viscose, 4% elastano.",
-    care: "Lavar à mão, não alvejar e secar à sombra.",
-  };
+const image = (number: number, alt: string, height = 640): ProductImage => ({
+  src: `/images/inove/instagram/post-${String(number).padStart(2, "0")}.webp`,
+  alt,
+  width: 640,
+  height,
 });
 
+const stock = (sizes: string[]) => Object.fromEntries(sizes.map((size, index) => [size, index === sizes.length - 1 ? 0 : 4 - index]));
+
+export const products: Product[] = [
+  {
+    id: "instagram-dfxutzwhapt",
+    slug: "cropped-suplex-poliamida-nadador",
+    name: "Cropped Suplex Poliamida Nadador",
+    category: "Croppeds",
+    price: 19.99,
+    colors: [{ name: "Cinza", hex: "#A6A5A4" }, { name: "Verde-água", hex: "#A8CDC5" }, { name: "Manteiga", hex: "#E9DEA0" }, { name: "Nude", hex: "#C8A990" }],
+    sizes: ["P", "M", "G", "GG"],
+    stock: stock(["P", "M", "G", "GG"]),
+    images: [image(2, "Modelo usando cropped nadador cinza da Inove Boutique"), image(3, "Croppeds nadador em quatro cores na arara da Inove Boutique")],
+    tags: ["novidade", "edição"],
+    description: "Cropped nadador em suplex de poliamida, fotografado na edição atual da Inove.",
+    composition: "Suplex de poliamida. Composição exata sob consulta à loja.",
+    care: "Confirme as instruções de lavagem na etiqueta.",
+    sourceUrl: "https://www.instagram.com/inoveboutique_/p/DfXuTzWhAPT/",
+    sourceCaption: "Cropped suplex poliamida nadador (R$19,99)",
+  },
+  {
+    id: "instagram-dfxtpyhbtvq",
+    slug: "shorts-crepe",
+    name: "Shorts Crepe",
+    category: "Shorts",
+    price: 19.99,
+    colors: [{ name: "Chocolate", hex: "#6E4435" }, { name: "Royal", hex: "#3956B5" }, { name: "Preto", hex: "#1E1C1B" }],
+    sizes: ["M", "G", "GG"],
+    stock: stock(["M", "G", "GG"]),
+    images: [image(4, "Modelo usando shorts crepe chocolate da Inove Boutique"), image(5, "Shorts crepe azul, preto e chocolate na arara da Inove Boutique", 639)],
+    tags: ["novidade", "edição"],
+    description: "Shorts de crepe com cós franzido e amarração, publicado nos tamanhos M, G e GG.",
+    composition: "Crepe. Composição exata sob consulta à loja.",
+    care: "Confirme as instruções de lavagem na etiqueta.",
+    sourceUrl: "https://www.instagram.com/inoveboutique_/p/DfXtPyhBTVq/",
+    sourceCaption: "Shorts crepe, tamanhos M, G e GG (R$19,99)",
+  },
+  {
+    id: "instagram-dfxssnnheca",
+    slug: "regata-viscomalha-almofadada",
+    name: "Regata Viscomalha Almofadada",
+    category: "Regatas & Blusas",
+    price: 29.99,
+    colors: [{ name: "Manteiga", hex: "#E9D96F" }, { name: "Cinza", hex: "#8F9091" }, { name: "Off-white", hex: "#F5F1E8" }],
+    sizes: ["P", "M", "G"],
+    stock: stock(["P", "M", "G"]),
+    images: [image(6, "Modelo usando regata viscomalha manteiga da Inove Boutique"), image(7, "Regatas viscomalha cinza, manteiga e off-white na arara da Inove Boutique")],
+    tags: ["novidade", "edição"],
+    description: "Regata em viscomalha com ombros estruturados, vista no feed atual da loja.",
+    composition: "Viscomalha. Composição exata sob consulta à loja.",
+    care: "Confirme as instruções de lavagem na etiqueta.",
+    sourceUrl: "https://www.instagram.com/inoveboutique_/p/DfXssnnhEca/",
+    sourceCaption: "Regata viscomalha almofadada (R$29,99)",
+  },
+  {
+    id: "instagram-dfxsaishdtq",
+    slug: "cropped-cirre-com-bojo",
+    name: "Cropped Cirrê com Bojo",
+    category: "Croppeds",
+    price: 29.99,
+    colors: [{ name: "Preto", hex: "#1D1B1B" }, { name: "Nude", hex: "#D2A891" }],
+    sizes: ["P", "M", "G"],
+    stock: stock(["P", "M", "G"]),
+    images: [image(8, "Modelo usando cropped cirrê preto com bojo da Inove Boutique", 639), image(9, "Croppeds cirrê preto e nude na arara da Inove Boutique")],
+    tags: ["novidade", "edição"],
+    description: "Cropped cirrê com bojo e alças finas, fotografado na edição atual.",
+    composition: "Cirrê. Composição exata sob consulta à loja.",
+    care: "Confirme as instruções de lavagem na etiqueta.",
+    sourceUrl: "https://www.instagram.com/inoveboutique_/p/DfXsAIshTdq/",
+    sourceCaption: "Cropped cirrê com bojo (R$29,99)",
+  },
+  {
+    id: "instagram-dfxrqiyhp23",
+    slug: "body-ana-ruga-com-bojo",
+    name: "Body Ana Ruga com Bojo",
+    category: "Bodies",
+    price: 29.99,
+    colors: [{ name: "Preto", hex: "#1D1B1B" }, { name: "Nude", hex: "#D5B29D" }, { name: "Off-white", hex: "#F5F1E8" }],
+    sizes: ["P", "M", "G"],
+    stock: stock(["P", "M", "G"]),
+    images: [image(10, "Modelo usando body Ana preto com bojo da Inove Boutique"), image(11, "Bodies Ana preto, nude e off-white na arara da Inove Boutique")],
+    tags: ["novidade", "edição"],
+    description: "Body Ana com acabamento em ruga e bojo, publicado no feed atual da Inove.",
+    composition: "Malha com elasticidade. Composição exata sob consulta à loja.",
+    care: "Confirme as instruções de lavagem na etiqueta.",
+    sourceUrl: "https://www.instagram.com/inoveboutique_/p/DfXrqIyhP23/",
+    sourceCaption: "Body Ana ruga com bojo (R$29,99)",
+  },
+  {
+    id: "instagram-dfxq2lchhak",
+    slug: "vestido-camisetao-bolsos-manga",
+    name: "Vestido Camisetão com Bolsos",
+    category: "Vestidos",
+    price: 39.99,
+    colors: [{ name: "Cinza", hex: "#777879" }],
+    sizes: ["M", "G", "GG"],
+    stock: stock(["M", "G", "GG"]),
+    images: [image(12, "Modelo usando vestido camisetão cinza com bolsos da Inove Boutique")],
+    tags: ["novidade", "edição"],
+    description: "Vestido camisetão cinza, com mangas e bolsos, publicado no feed atual da loja.",
+    composition: "Malha. Composição exata sob consulta à loja.",
+    care: "Confirme as instruções de lavagem na etiqueta.",
+    sourceUrl: "https://www.instagram.com/inoveboutique_/p/DfXq2lchHAk/",
+    sourceCaption: "Vestido camisetão bolsos manga (R$39,99)",
+  },
+];
+
 export const getProduct = (slug: string) => products.find((product) => product.slug === slug);
+

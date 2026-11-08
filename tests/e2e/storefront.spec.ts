@@ -74,6 +74,23 @@ test("ignora persistência corrompida", async ({ page }) => {
   await expect(page.getByText("6 peças na arara")).toBeVisible();
 });
 
+test("hero usa fotos distintas e paleta mantém o mesmo enquadramento", async ({ page }) => {
+  await page.goto("/");
+  const heroPhotos = page.locator(".floating-hero-photo");
+  await expect(heroPhotos).toHaveCount(8);
+  const sources = await heroPhotos.evaluateAll((images) => images.map((image) => (image as HTMLImageElement).getAttribute("src")));
+  expect(new Set(sources).size).toBe(8);
+
+  const palettePhoto = page.locator(".palette-photo img");
+  await expect(palettePhoto).toHaveAttribute("src", /palette%2Fcinza|palette\/cinza/);
+  await page.getByRole("button", { name: "Verde-água" }).click();
+  await expect(palettePhoto).toHaveAttribute("src", /verde-agua/);
+
+  const lookbookSources = await page.locator(".lookbook-photo img").evaluateAll((images) => images.map((image) => (image as HTMLImageElement).getAttribute("src")));
+  expect(new Set(lookbookSources).size).toBe(3);
+  expect(lookbookSources.every((source) => source?.includes("lookbook"))).toBe(true);
+});
+
 test("rotas públicas respondem sem erro", async ({ page }) => {
   for (const route of ["/", "/loja", "/produto/cropped-suplex-poliamida-nadador", "/sacola", "/favoritos", "/sobre", "/trocas", "/pedido/IB47-DEMO", "/nao-existe"]) {
     const response = await page.goto(route);

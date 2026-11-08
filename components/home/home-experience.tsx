@@ -28,13 +28,13 @@ const palette = [
   { name: "Preto", hex: "#1D1B1B", src: "/images/inove/palette/preto.webp", alt: "Cropped nadador preto" },
 ];
 const heroPhotos = [
-  { src: "/images/inove/hero-v2/produto-cropped-verde.webp", alt: "Cropped verde-água", depth: .5, className: "hero-float-1" },
-  { src: "/images/inove/hero-v2/produto-shorts-royal.webp", alt: "Shorts azul royal", depth: 1, className: "hero-float-2" },
+  { src: "/images/inove/hero-v3/modelo-blusa-branca.webp", alt: "Modelo usando blusa branca com gola", depth: .5, className: "hero-float-1" },
+  { src: "/images/inove/hero-v3/modelo-vestido-manteiga.webp", alt: "Modelo usando vestido manteiga", depth: 1, className: "hero-float-2" },
   { src: "/images/inove/hero-v2/modelo-regata-manteiga.webp", alt: "Modelo usando regata manteiga", depth: 2, className: "hero-float-3" },
-  { src: "/images/inove/hero-v2/produto-regata-manteiga.webp", alt: "Regata manteiga", depth: 1, className: "hero-float-4" },
-  { src: "/images/inove/hero-v2/produto-cropped-preto.webp", alt: "Cropped preto de cirrê", depth: 1, className: "hero-float-5" },
+  { src: "/images/inove/hero-v3/modelo-vestido-chocolate.webp", alt: "Modelo usando vestido chocolate", depth: 1, className: "hero-float-4" },
+  { src: "/images/inove/hero-v3/modelo-blusa-rosa.webp", alt: "Modelo usando blusa rosa", depth: 1, className: "hero-float-5" },
   { src: "/images/inove/hero-v2/modelo-body-preto.webp", alt: "Modelo usando body preto", depth: 2, className: "hero-float-6" },
-  { src: "/images/inove/hero-v2/produto-body-nude.webp", alt: "Body nude canelado", depth: 4, className: "hero-float-7" },
+  { src: "/images/inove/hero-v3/modelo-cropped-poa.webp", alt: "Modelo usando cropped preto de poá", depth: 4, className: "hero-float-7" },
   { src: "/images/inove/hero-v2/modelo-vestido-cinza.webp", alt: "Modelo usando vestido cinza", depth: 1, className: "hero-float-8" },
   { src: "/images/inove/hero-v2/modelo-cropped-cinza.webp", alt: "Modelo usando cropped cinza", depth: 1.5, className: "hero-float-9" },
   { src: "/images/inove/hero-v2/modelo-shorts-chocolate.webp", alt: "Modelo usando shorts chocolate", depth: .75, className: "hero-float-10" },

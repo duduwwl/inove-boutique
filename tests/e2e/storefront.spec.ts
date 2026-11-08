@@ -80,7 +80,10 @@ test("hero usa fotos distintas e paleta mantém fundo e enquadramento", async ({
   await expect(heroPhotos).toHaveCount(11);
   const sources = await heroPhotos.evaluateAll((images) => images.map((image) => (image as HTMLImageElement).getAttribute("src")));
   expect(new Set(sources).size).toBe(11);
+  expect(sources.filter((source) => source?.includes("hero-v3")).length).toBe(5);
   await expect(page.getByText("Nova edição", { exact: true })).toHaveCount(0);
+  await expect(page.locator(".floating-hero")).toHaveCSS("background-color", "rgb(255, 255, 255)");
+  await expect(page.locator(".site-header")).toHaveCSS("color", "rgb(9, 9, 9)");
 
   const paletteSection = page.locator(".palette-section");
   const initialBackground = await paletteSection.evaluate((element) => getComputedStyle(element).backgroundColor);

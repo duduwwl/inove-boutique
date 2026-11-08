@@ -253,17 +253,18 @@ h1,h2,h3,h4,h5,h6 { text-wrap:balance; scroll-margin-top:100px; }
 @media(max-width:520px){.checkout-form{padding:1rem}.payment-tabs{grid-template-columns:1fr}.pix-panel{grid-template-columns:1fr;justify-items:center}.card-fields{grid-template-columns:1fr}.card-fields label{grid-column:1!important}.step-buttons{flex-direction:column-reverse}.step-buttons>*{width:100%}.checkout-page>header h1{font-size:16vw}}
 
 /* Edição interativa — direção: fotografias em tamanhos desiguais */
-.floating-hero { position:relative; min-height:100svh; display:grid; place-items:center; overflow:hidden; background:#090909; color:white; isolation:isolate; }
+.floating-hero { position:relative; min-height:100svh; display:grid; place-items:center; overflow:hidden; background:#fff; color:#090909; isolation:isolate; }
+.site-header:not(.is-solid):has(+ main .floating-hero) { color:#090909; }
 .floating-hero-copy { position:relative; z-index:3; display:flex; flex-direction:column; align-items:center; text-align:center; }
 .floating-hero-copy h1 { margin:0 0 .9rem; font-family:var(--font-bodoni),serif; font-size:clamp(5rem,9vw,9rem); font-style:italic; font-weight:400; line-height:.8; letter-spacing:-.06em; }
-.floating-hero-copy a { min-width:132px; padding:.65rem 1rem; border-radius:999px; background:white; color:#090909; font-size:.78rem; transition:transform 200ms var(--ease-out); }
+.floating-hero-copy a { min-width:132px; padding:.65rem 1rem; border-radius:999px; background:#090909; color:white; font-size:.78rem; transition:transform 200ms var(--ease-out); }
 .floating-hero-scene { position:absolute; inset:0; z-index:1; overflow:hidden; }
 .floating-element { position:absolute; }
 .floating-hero-photo { width:100%; height:100%; object-fit:cover; transition:transform 200ms ease; }
 .hero-float-1 { top:8%; left:10%; width:clamp(5rem,7vw,7rem); aspect-ratio:1; }
 .hero-float-2 { top:10%; left:30%; width:clamp(5.5rem,8vw,8rem); aspect-ratio:1; }
-.hero-float-3 { top:2%; left:53%; width:clamp(7rem,10vw,10rem); aspect-ratio:1; }
-.hero-float-4 { top:3%; left:83%; width:clamp(6rem,8vw,8rem); aspect-ratio:1; }
+.hero-float-3 { top:8%; left:53%; width:clamp(7rem,10vw,10rem); aspect-ratio:1; }
+.hero-float-4 { top:10%; left:83%; width:clamp(6rem,8vw,8rem); aspect-ratio:1; }
 .hero-float-5 { top:37%; left:2%; width:clamp(7rem,9vw,9rem); aspect-ratio:1; }
 .hero-float-6 { top:34%; left:87%; width:clamp(6rem,8vw,8rem); aspect-ratio:1; }
 .hero-float-7 { top:72%; left:13%; width:clamp(9rem,12vw,12rem); aspect-ratio:1; }

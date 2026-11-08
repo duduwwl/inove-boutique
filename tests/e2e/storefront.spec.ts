@@ -74,21 +74,26 @@ test("ignora persistência corrompida", async ({ page }) => {
   await expect(page.getByText("6 peças na arara")).toBeVisible();
 });
 
-test("hero usa fotos distintas e paleta mantém o mesmo enquadramento", async ({ page }) => {
+test("hero usa fotos distintas e paleta mantém fundo e enquadramento", async ({ page }) => {
   await page.goto("/");
   const heroPhotos = page.locator(".floating-hero-photo");
-  await expect(heroPhotos).toHaveCount(8);
+  await expect(heroPhotos).toHaveCount(11);
   const sources = await heroPhotos.evaluateAll((images) => images.map((image) => (image as HTMLImageElement).getAttribute("src")));
-  expect(new Set(sources).size).toBe(8);
+  expect(new Set(sources).size).toBe(11);
+  await expect(page.getByText("Nova edição", { exact: true })).toHaveCount(0);
 
+  const paletteSection = page.locator(".palette-section");
+  const initialBackground = await paletteSection.evaluate((element) => getComputedStyle(element).backgroundColor);
   const palettePhoto = page.locator(".palette-photo img");
   await expect(palettePhoto).toHaveAttribute("src", /palette%2Fcinza|palette\/cinza/);
   await page.getByRole("button", { name: "Verde-água" }).click();
   await expect(palettePhoto).toHaveAttribute("src", /verde-agua/);
+  await expect.poll(() => paletteSection.evaluate((element) => getComputedStyle(element).backgroundColor)).toBe(initialBackground);
 
   const lookbookSources = await page.locator(".lookbook-photo img").evaluateAll((images) => images.map((image) => (image as HTMLImageElement).getAttribute("src")));
   expect(new Set(lookbookSources).size).toBe(3);
   expect(lookbookSources.every((source) => source?.includes("lookbook"))).toBe(true);
+  await expect(page.locator(".collage-grid a")).toHaveCount(8);
 });
 
 test("rotas públicas respondem sem erro", async ({ page }) => {
